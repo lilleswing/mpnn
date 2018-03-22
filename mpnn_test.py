@@ -19,6 +19,8 @@
 
 import numpy as np
 import tensorflow as tf
+from nose.tools import nottest
+
 import mpnn
 
 
@@ -26,6 +28,7 @@ def build_feed_dict(ph, h, adjacency, dist, m):
   return {ph[0]: h, ph[1]: adjacency, ph[2]: dist, ph[3]: m}
 
 
+@nottest
 def get_permutation_test_outputs(hparams):
   num_nodes = 4
   batch_size = 3
@@ -63,10 +66,10 @@ def get_permutation_test_outputs(hparams):
     with tf.Session() as sess:
       sess.run(tf.global_variables_initializer())
       output = sess.run(
-          pred_op, feed_dict=build_feed_dict(ph, h, adjacency, dist, m))
+        pred_op, feed_dict=build_feed_dict(ph, h, adjacency, dist, m))
       output_perm = sess.run(
-          pred_op,
-          feed_dict=build_feed_dict(ph, h_perm, adjacency_perm, dist_perm, m))
+        pred_op,
+        feed_dict=build_feed_dict(ph, h_perm, adjacency_perm, dist_perm, m))
       print("output no perm:")
       print(output)
       print("\noutput perm:")
@@ -74,6 +77,7 @@ def get_permutation_test_outputs(hparams):
       return output, output_perm
 
 
+@nottest
 def get_pad_test_outputs(hparams):
   # TODO(gilmer) This should test different paddings within the same batch,
   # in a similar way as in set2vec_test.py
@@ -120,10 +124,10 @@ def get_pad_test_outputs(hparams):
     with tf.Session() as sess:
       sess.run(tf.global_variables_initializer())
       output = sess.run(
-          pred_op, feed_dict=build_feed_dict(ph, h, adjacency, dist, m))
+        pred_op, feed_dict=build_feed_dict(ph, h, adjacency, dist, m))
       output_pad = sess.run(
-          pred_op,
-          feed_dict=build_feed_dict(ph, h_pad, adjacency_pad, dist_pad, m_pad))
+        pred_op,
+        feed_dict=build_feed_dict(ph, h_pad, adjacency_pad, dist_pad, m_pad))
 
       print("output no pad:")
       print(output)
@@ -147,7 +151,6 @@ class MPNNTest(tf.test.TestCase):
     dist = np.random.rand(batch_size, num_nodes, num_nodes)
     m = np.full((batch_size, num_nodes), 1)
     with tf.Graph().as_default():
-
       hparams = mpnn.MPNN.default_hparams()
       model = mpnn.MPNN(hparams, input_dim, output_dim, num_edge_class=5)
       ph, _ = model.get_fprop_placeholders()
@@ -159,12 +162,11 @@ class MPNNTest(tf.test.TestCase):
       pred2 = model.fprop(*ph2)
 
       with tf.Session() as sess:
-
         sess.run(tf.global_variables_initializer())
         pred1 = sess.run(
-            pred, feed_dict=build_feed_dict(ph, h, adjacency, dist, m))
+          pred, feed_dict=build_feed_dict(ph, h, adjacency, dist, m))
         pred2 = sess.run(
-            pred2, feed_dict=build_feed_dict(ph2, h, adjacency, dist, m))
+          pred2, feed_dict=build_feed_dict(ph2, h, adjacency, dist, m))
 
     self.assertListEqual(list(pred1.shape), [batch_size, output_dim])
     self.assertListEqual(list(pred2.shape), [batch_size, output_dim])
